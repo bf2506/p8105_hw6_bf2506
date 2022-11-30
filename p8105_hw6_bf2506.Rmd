@@ -1,0 +1,26 @@
+---
+title: "p8105_hw6_bf2506"
+author: "bf2506"
+date: "2022-11-30"
+output: github_document
+---
+
+```{r load package, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+### Problem 2
+
+```{r read homi_data}
+homi_data = 
+  read.csv("./data/homicide-data.csv") %>%
+  janitor::clean_names()
+```
+
+Create a city_state variable
+```{r}
+homi_data = 
+  homi_data %>% 
+  mutate(city_state = paste(city, state, sep = ", ", collapse = NULL))
+```
+
