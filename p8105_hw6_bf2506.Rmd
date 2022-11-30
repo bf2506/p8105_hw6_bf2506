@@ -17,14 +17,26 @@ homi_data =
   janitor::clean_names()
 ```
 
-Create a city_state variable, and a binary result variable of disposition. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race. Also omit Tulsa, AL – this is a data entry mistake. For this problem, limit your analysis those for whom victim_race is white or black. Be sure that victim_age is numeric.
+Create a city_state variable, and a binary resolved variable of disposition. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race. Also omit Tulsa, AL – this is a data entry mistake. For this problem, limit your analysis those for whom victim_race is white or black. Be sure that victim_age is numeric.
 ```{r}
 homi_data = 
   homi_data %>% 
   mutate(city_state = paste(city, state, sep = ", ", collapse = NULL)) %>% 
-  mutate(result = ifelse(disposition == "Closed by arrest", 1, 0),
+  mutate(resolved = as.numeric(disposition == "Closed by arrest"),
          victim_age = as.numeric(victim_age)) %>%
   relocate(uid, city_state, everything()) %>% 
   filter( !(city_state %in% c("Dallas,TX", "Phoenix,AZ", " Kansas City,MO", "Tulsa,AL")) &
     victim_race %in% c("Black", "White"))
 ```
+
+For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race as predictors.
+```{r}
+baltimore_df =
+  homi_data %>%
+  filter(city_state == "Baltimore, MD")
+
+fit_logistic_balt = 
+  glm(resolved ~ victim_age + victim_sex + victim_race, family = binomial(), data = baltimore_df) 
+
+```
+
