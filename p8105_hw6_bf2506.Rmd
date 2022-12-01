@@ -12,14 +12,14 @@ library(modelr)
 
 ### Problem 2
 
-```{r read homi_data}
+```{r read homi_data, message=FALSE, warning=FALSE}
 homi_data = 
   read.csv("./data/homicide-data.csv") %>%
   janitor::clean_names()
 ```
 
 Create a city_state variable, and a binary resolved variable of disposition. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race. Also omit Tulsa, AL – this is a data entry mistake. For this problem, limit your analysis those for whom victim_race is white or black. Be sure that victim_age is numeric.
-```{r}
+```{r message=FALSE, warning=FALSE}
 homi_data = 
   homi_data %>% 
   mutate(city_state = paste(city, state, sep = ", ", collapse = NULL)) %>% 
@@ -108,7 +108,8 @@ everycity_plot =
 
 everycity_plot
 ```
-"Comment**: The adjusted odds ratio for solving homicides comparing male victims to female victims is less than 1 in most cities in the USA shown in this plot, which means male cases are harder to solve than females in most America cities. Only in Nashville, TN/Fresno, CA/Stockton, CA/Albuquerque, NM, male cases have higher odds of being solved. It can also be noted that the odds ratio for Atlanta, GA is equal to one, which is equally likely to be solved (Richmond, VA has an approximated value to 1). And the odds is the lowest in New York, NY, which means male cases are the hardest to be solved than female's among all the city above.
+
+**Comment**: The adjusted odds ratio for solving homicides comparing male victims to female victims is less than 1 in most cities in the USA shown in this plot, which means male cases are harder to solve than females in most America cities. Only in Nashville, TN/Fresno, CA/Stockton, CA/Albuquerque, NM, male cases have higher odds of being solved. It can also be noted that the odds ratio for Atlanta, GA is equal to one, which is equally likely to be solved (Richmond, VA has an approximated value to 1). And the odds is the lowest in New York, NY, which means male cases are the hardest to be solved than female's among all the city above.
 
 
 ### Problem 3
@@ -217,4 +218,5 @@ cv_plot =
   theme(plot.title=element_text(hjust = 0.5))
 cv_plot
 ```
+
 According to the plot of "RMSE Of Each Model"(cross-validation), my model has the biggest RMSE, so mine seems the worst. And the third model (using head circumference, length, sex, and all interactions) appears to be doing better than the second model (using length at birth and gestational age as predictors). It has a low RMSE. I think it is because I did not use data that can only be measured at birth (e.g., bhead, blength). My hypothetical structural thinking considers a regression model when infant birth data are not available. That is why my RMSE is bigger.
