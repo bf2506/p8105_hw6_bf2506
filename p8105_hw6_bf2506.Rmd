@@ -125,3 +125,43 @@ birthweight_data =
          mrace = as.factor(mrace))
 ```
 
+Propose a regression model for birthweight. I propose my regression model mainly by a hypothesized structure. I google "Factors influencing fetal birth weight" then find it is relative to genetics, Ethnicity, Age of the parent, Number of babies, Length of Pregnancy, Mother's birth weight, Diet during pregnancy, Mother's habits, Gender, and Parent's medical conditions, etc. SO I decide to choose these as predictors:
+* genetics/Ethnicity
+ - frace: father’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other, 9 = Unknown)
+ - mrace: mother’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other)
+* Age of the parent
+ - momage: mother’s age at delivery (years)
+* Number of babies
+ - parity: number of live births prior to this pregnancy
+* Length of Pregnancy
+ - gaweeks: gestational age in weeks
+* Diet during pregnancy
+ - wtgain: mother’s weight gain during pregnancy (pounds)
+* Mother's habits
+ - smoken: average number of cigarettes smoked per day during pregnancy
+* Gender
+ - babysex: baby’s sex (male = 1, female = 2)
+* Else
+ - malform: presence of malformations that could affect weight (0 = absent, 1 = present)
+
+Then I Fit a model
+```{r}
+fit = lm(bwt ~ babysex + mrace + frace + parity + momage + gaweeks + parity + smoken + wtgain, data = birthweight_data)
+```
+
+Plot of model residuals against fitted values
+```{r plot of model residuals against fitted values}
+res_df = add_residuals(birthweight_data, fit)
+pred_df = add_predictions(birthweight_data, fit)
+
+plot_df = 
+  res_df %>%
+  mutate(pred = pull(pred_df, pred))
+
+plot = 
+  ggplot(plot_df, aes(x = pred, y = resid)) + 
+  geom_point() +
+  labs( title = "Residuals against fitted values", x = "Prediction (garms)", y = "Residuals (garms)")
+
+plot
+```
