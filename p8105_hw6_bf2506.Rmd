@@ -127,8 +127,7 @@ birthweight_data =
 
 Propose a regression model for birthweight. I propose my regression model mainly by a hypothesized structure. I google "Factors influencing fetal birth weight" then find it is relative to genetics, Ethnicity, Age of the parent, Number of babies, Length of Pregnancy, Mother's birth weight, Diet during pregnancy, Mother's habits, Gender, and Parent's medical conditions, etc. SO I decide to choose these as predictors:
 
-* genetics/Ethnicity
-  - frace: father’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other, 9 = Unknown)
+* Ethnicity
   - mrace: mother’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other)
 * Age of the parent
   - momage: mother’s age at delivery (years)
@@ -147,14 +146,23 @@ Propose a regression model for birthweight. I propose my regression model mainly
 
 Then I Fit a model
 ```{r}
-fit = lm(bwt ~ babysex + mrace + frace + parity + momage + gaweeks + parity + smoken + wtgain, data = birthweight_data)
+fit_test= lm(bwt ~ babysex + mrace + parity + momage + gaweeks + malform + smoken + wtgain, data = birthweight_data)
+
+summary(fit_test)
 ```
+*According to the above table, I removed the momage, malform and parity variables because they are not significantly related.*
+
+Fit my final model
+```{r}
+fit = lm(bwt ~ babysex + mrace + gaweeks + smoken + wtgain, data = birthweight_data)
+```
+**Predictors**: babysex, mrace, gaweeks, smoken, wtgain
 
 Plot of model residuals against fitted values
 ```{r plot of model residuals against fitted values}
 plot_df = 
   birthweight_data %>% 
-  select(bwt, babysex, mrace, frace, parity, momage, gaweeks, parity, smoken, wtgain) %>%
+  select(bwt, babysex, mrace, gaweeks, smoken, wtgain) %>%
   modelr::add_residuals(., fit) %>% 
   modelr::add_predictions(., fit)
 
@@ -172,14 +180,41 @@ Second part is comparing my model to two others:
 
 * using length at birth and gestational age as predictors 
 * using head circumference, length, sex, and all interactions
-```{r}
-fit_blength_gaweeks = 
-  birthweight_data %>% 
-  lm(bwt ~ blength + gaweeks, data = .)
-
-fit_bhead_blength_babysex = 
-  birthweight_data %>% 
-  lm(bwt ~ bhead + blength + babysex + bhead*blength*babysex, data = .)
-```
 
 Then make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
+```{r message=FALSE, warning=FALSE}
+cv_df = 
+  crossv_mc(birthweight_data, 100) %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+
+cv_results = 
+  cv_df %>% 
+  mutate(
+    fit_mod = map(train, ~lm(bwt ~ babysex + mrace + parity + smoken + wtgain, data = .x)),
+    blength_gaweeks_mod = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+    bhead_blength_babysex_mod = map(train, ~lm(bwt ~ bhead + blength + babysex + bhead*blength*babysex, data = .x))) %>% 
+  mutate(
+    rmse_fit_mod = map2_dbl(fit_mod, test, ~rmse(model = .x, data = .y)),
+    rmse_blength_gaweeks_mod = map2_dbl(blength_gaweeks_mod, test, ~rmse(model = .x, data = .y)),
+    rmse_bhead_blength_babysex_mod = map2_dbl(bhead_blength_babysex_mod, test, ~rmse(model = .x, data = .y)))
+```
+
+```{r cv_plot}
+cv_plot = 
+  cv_results %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin() +
+  labs(title = "RMSE Of Each Model", x = "Model", y = "RMSE") +
+  theme(axis.text.x = element_text(angle = 15, vjust = 0.5, hjust = 0.5))+
+  theme(plot.title=element_text(hjust = 0.5))
+cv_plot
+```
+According to the plot of "RMSE Of Each Model"(cross-validation), my model has the biggest RMSE, so mine seems the worst. And the third model (using head circumference, length, sex, and all interactions) appears to be doing better than the second model (using length at birth and gestational age as predictors). It has a low RMSE. 
