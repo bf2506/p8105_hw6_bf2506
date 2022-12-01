@@ -107,3 +107,11 @@ everycity_plot =
 everycity_plot
 ```
 
+### Problem 3
+
+```{r read birthweight_data}
+birthweight_data = 
+  read.csv("./data/birthweight.csv") %>%
+  janitor::clean_names()
+```
+
