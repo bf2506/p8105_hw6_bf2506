@@ -151,12 +151,11 @@ fit = lm(bwt ~ babysex + mrace + frace + parity + momage + gaweeks + parity + sm
 
 Plot of model residuals against fitted values
 ```{r plot of model residuals against fitted values}
-res_df = add_residuals(birthweight_data, fit)
-pred_df = add_predictions(birthweight_data, fit)
-
 plot_df = 
-  res_df %>%
-  mutate(pred = pull(pred_df, pred))
+  birthweight_data %>% 
+  select(bwt, babysex, mrace, frace, parity, momage, gaweeks, parity, smoken, wtgain) %>%
+  modelr::add_residuals(., fit) %>% 
+  modelr::add_predictions(., fit)
 
 plot = 
   ggplot(plot_df, aes(x = pred, y = resid)) + 
@@ -165,3 +164,5 @@ plot =
 
 plot
 ```
+
+Second part is comparing my model to two others
