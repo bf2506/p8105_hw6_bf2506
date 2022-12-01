@@ -160,9 +160,13 @@ plot_df =
 plot = 
   ggplot(plot_df, aes(x = pred, y = resid)) + 
   geom_point() +
+  geom_hline(yintercept = 0) +
   labs( title = "Residuals against fitted values", x = "Prediction (garms)", y = "Residuals (garms)")
 
 plot
 ```
+*The model seems good because most values are evenly distributed on the y=0 line (exists some outliers).*
+
+
 
 Second part is comparing my model to two others
