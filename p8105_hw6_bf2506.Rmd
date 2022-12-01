@@ -167,6 +167,16 @@ plot
 ```
 *The model seems good because most values are evenly distributed on the y=0 line (exists some outliers).*
 
-
-
 Second part is comparing my model to two others
+```{r}
+fit_blength_gaweeks = 
+  birthweight_data %>% 
+  lm(bwt ~ blength + gaweeks, data = .)
+
+fit_bhead_blength_babysex = 
+  birthweight_data %>% 
+  lm(bwt ~ bhead + blength + babysex + bhead*blength*babysex, data = .)
+
+
+```
+
