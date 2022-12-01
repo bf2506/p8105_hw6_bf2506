@@ -24,7 +24,7 @@ homi_data =
   mutate(city_state = paste(city, state, sep = ", ", collapse = NULL)) %>% 
   mutate(resolved = as.numeric(disposition == "Closed by arrest"),
          victim_age = as.numeric(victim_age)) %>%
-  relocate(uid, city_state, everything()) %>% 
+  relocate(city_state) %>% 
   filter( !(city_state %in% c("Dallas,TX", "Phoenix,AZ", " Kansas City,MO", "Tulsa,AL")) &
     victim_race %in% c("Black", "White"))
 ```
@@ -60,7 +60,25 @@ sexMale_balt
 Run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing male victims to female victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
 
 ```{r}
-fit_logistic_balt = 
-  glm(resolved ~ victim_age + victim_sex + victim_race, family = binomial(), data = baltimore_df) 
+OR = function(df) {
+  fit_everycity = 
+  glm(resolved ~ victim_age + victim_sex + victim_race, family = binomial(), data = df) %>% 
+    broom::tidy() %>% 
+    filter(term == "victim_sexMale") %>% 
+    mutate(
+    OR = exp(estimate),
+    conf_lower = exp(estimate - 1.96*std.error),
+    conf_upper = exp(estimate + 1.96*std.error)) %>% 
+    select(OR, conf_lower, conf_upper)
+  
+  return(fit_everycity)
+}
+
+everycity_df = 
+  homi_data %>% 
+  nest(data = uid:resolved) %>% 
+  mutate(everycity_OR = map(data, OR)) %>% 
+  select(-data) %>% 
+  unnest(everycity_OR)
 ```
 
