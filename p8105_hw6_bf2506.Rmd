@@ -32,6 +32,8 @@ homi_data =
     victim_race = as.factor(victim_race),
     victim_sex = as.factor(victim_sex))
 ```
+**" Closed by arrest" in disposition is represented as 1 in resolved variable, which means cases are resolved. "Closed without arrest" and "Open/No arrest" in disposition are represented as 0 in resolved variable, which means cases are not resolved.**
+ 
 
 For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race as predictors. Save the output of glm as an R object.
 ```{r}
@@ -106,12 +108,16 @@ everycity_plot =
 
 everycity_plot
 ```
+"Comment**: The adjusted odds ratio for solving homicides comparing male victims to female victims is less than 1 in most cities in the USA shown in this plot, which means male cases are harder to solve than females in most America cities. Only in Nashville, TN/Fresno, CA/Stockton, CA/Albuquerque, NM, male cases have higher odds of being solved. It can also be noted that the odds ratio for Atlanta, GA is equal to one, which is equally likely to be solved (Richmond, VA has an approximated value to 1). And the odds is the lowest in New York, NY, which means male cases are the hardest to be solved than female's among all the city above.
+
 
 ### Problem 3
 
+Load and clean the data for regression analysis
 ```{r read birthweight_data}
 birthweight_data = 
   read.csv("./data/birthweight.csv") %>%
   janitor::clean_names()
+
 ```
 
