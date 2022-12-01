@@ -126,23 +126,24 @@ birthweight_data =
 ```
 
 Propose a regression model for birthweight. I propose my regression model mainly by a hypothesized structure. I google "Factors influencing fetal birth weight" then find it is relative to genetics, Ethnicity, Age of the parent, Number of babies, Length of Pregnancy, Mother's birth weight, Diet during pregnancy, Mother's habits, Gender, and Parent's medical conditions, etc. SO I decide to choose these as predictors:
+
 * genetics/Ethnicity
- - frace: father’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other, 9 = Unknown)
- - mrace: mother’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other)
+  - frace: father’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other, 9 = Unknown)
+  - mrace: mother’s race (1 = White, 2 = Black, 3 = Asian, 4 = Puerto Rican, 8 = Other)
 * Age of the parent
- - momage: mother’s age at delivery (years)
+  - momage: mother’s age at delivery (years)
 * Number of babies
- - parity: number of live births prior to this pregnancy
+  - parity: number of live births prior to this pregnancy
 * Length of Pregnancy
- - gaweeks: gestational age in weeks
+  - gaweeks: gestational age in weeks
 * Diet during pregnancy
- - wtgain: mother’s weight gain during pregnancy (pounds)
+  - wtgain: mother’s weight gain during pregnancy (pounds)
 * Mother's habits
- - smoken: average number of cigarettes smoked per day during pregnancy
+  - smoken: average number of cigarettes smoked per day during pregnancy
 * Gender
- - babysex: baby’s sex (male = 1, female = 2)
+  - babysex: baby’s sex (male = 1, female = 2)
 * Else
- - malform: presence of malformations that could affect weight (0 = absent, 1 = present)
+  - malform: presence of malformations that could affect weight (0 = absent, 1 = present)
 
 Then I Fit a model
 ```{r}
@@ -167,7 +168,10 @@ plot
 ```
 *The model seems good because most values are evenly distributed on the y=0 line (exists some outliers).*
 
-Second part is comparing my model to two others
+Second part is comparing my model to two others:
+
+* using length at birth and gestational age as predictors 
+* using head circumference, length, sex, and all interactions
 ```{r}
 fit_blength_gaweeks = 
   birthweight_data %>% 
@@ -176,7 +180,6 @@ fit_blength_gaweeks =
 fit_bhead_blength_babysex = 
   birthweight_data %>% 
   lm(bwt ~ bhead + blength + babysex + bhead*blength*babysex, data = .)
-
-
 ```
 
+Then make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
