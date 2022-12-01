@@ -7,6 +7,7 @@ output: github_document
 
 ```{r load package, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(modelr)
 ```
 
 ### Problem 2
@@ -26,7 +27,10 @@ homi_data =
          victim_age = as.numeric(victim_age)) %>%
   relocate(city_state) %>% 
   filter( !(city_state %in% c("Dallas,TX", "Phoenix,AZ", " Kansas City,MO", "Tulsa,AL")) &
-    victim_race %in% c("Black", "White"))
+    victim_race %in% c("Black", "White")) %>% 
+  mutate(
+    victim_race = as.factor(victim_race),
+    victim_sex = as.factor(victim_sex))
 ```
 
 For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race as predictors. Save the output of glm as an R object.
@@ -60,8 +64,27 @@ sexMale_balt
 Run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing male victims to female victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
 
 ```{r}
+func = function(everycity_df) {
+  
+  fit_everycity = 
+    glm(resolved ~ victim_age + victim_sex + victim_race, family = binomial, data = everycity_df) %>%
+    broom::tidy() %>% 
+    mutate(
+    OR = exp(estimate),
+    conf_lower = exp(estimate - 1.96*std.error),
+    conf_upper = exp(estimate + 1.96*std.error)) %>%
+    filter(term == "victim_sexMale") %>%
+    select(OR, conf_lower, conf_upper)
+  
+  return(fit_everycity)
+}
+
+```
+
+```{r}
 everycity_df = 
   homi_data %>% 
-  nest(data = -city_state)
+  nest(data = uid:resolved) %>% 
+  mutate(results = map(.x = data, ~func(.x)))
 ```
 
