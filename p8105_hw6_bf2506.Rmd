@@ -93,3 +93,17 @@ everycity_df %>%
   knitr::kable(digits = 3)
 ```
 
+Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
+```{r}
+everycity_plot = 
+  everycity_df %>% 
+  mutate(city_state = fct_reorder(city_state, OR)) %>%
+  ggplot(aes(x = city_state, y = OR)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = conf_lower, ymax = conf_upper)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
+  labs(title = "Estimate And CIs Of Adjusted Odds Ratio Comparing Male Victims To Female", x = "City, State", y = "Estimate / CI for solving homicides")
+
+everycity_plot
+```
+
